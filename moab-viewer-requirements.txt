@@ -1,5 +1,0 @@
-jinja2
-numpy
-pyrr
-pygame
-pyopengl
