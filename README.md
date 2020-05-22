@@ -17,7 +17,7 @@ docker build -t <IMAGE_NAME> -f Dockerfile ../../
 
 ## How to push to ACR
 ```sh
-az login (Is not necessary if you are already up to date or logged in recently)
+az login  # Is not necessary if you are already up to date or logged in recently
 az acr login --subscription <SUBSCRIPTION_ID> --name <ACR_REGISTRY_NAME>
 docker tag <IMAGE_NAME> <ACR_REGISTRY_NAME>.azurecr.io/bonsai/<IMAGE_NAME>
 docker push <ACR_REGSITRY_NAME>.azurecr.io/bonsai/<IMAGE_NAME>
