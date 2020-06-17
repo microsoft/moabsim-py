@@ -6,13 +6,13 @@ RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
-# Pull python packages from internal feed
-COPY pip.conf /root/.pip/pip.conf
-
 # Install SDK3 Python
-COPY bonsai3-py ./bonsai3-py
+COPY microsoft-bonsai-api/Python ./microsoft-bonsai-api
+COPY sim-common ./sim-common
 RUN pip3 install -U setuptools \
-  && cd bonsai3-py \
+  && cd microsoft-bonsai-api \
+  && python3 setup.py develop \
+  && cd ../sim-common \
   && python3 setup.py develop \
   && pip3 uninstall -y setuptools
 
