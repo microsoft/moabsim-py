@@ -3,12 +3,7 @@
 This project is a simulator for the Moab device. For more information, visit the micro-site at https://aka.ms/moab.
 
 ## Building Demo Dockerfile
-Clone the [bonsai3-py](https://github.com/BonsaiAI/bonsai3-py) repo locally, and install it. Arrange this repo and bonsai3-py in the following directory structure:
-```
-./
-./bonsai3-py
-./samples/moabsim-py/
-```
+The following instructions are assuming you are using the bonsai-sdk repo to try out the sample. It will not work without it as it installs the dependencies from that repo.
 
 From inside `./samples/moabsim-py/` build the image:
 ```sh
