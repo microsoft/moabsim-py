@@ -4,23 +4,28 @@ Simulator for the Moab plate+ball balancing device.
 __author__ = "Mike Estee"
 __copyright__ = "Copyright 2020, Microsoft Corp."
 
-# pyright: strict
+# pyright: strict, reportUnknownMemberType=false
 
 import logging
 import os
 import sys
+import json
+from typing import Dict, Any
 
 from jinja2 import Template
 from pyrr import matrix33, vector
 
-from bonsai3 import Schema, ServiceConfig, SimulatorInterface, SimulatorSession
 from moab_model import MoabModel, clamp
+
+from sim_common import SimulatorSession
+from microsoft_bonsai_api.simulator.models import SimulatorInterface
+from microsoft_bonsai_api.client import BonsaiClientConfig
 
 log = logging.getLogger(__name__)
 
 
 class MoabSim(SimulatorSession):
-    def __init__(self, config: ServiceConfig):
+    def __init__(self, config: BonsaiClientConfig):
         super().__init__(config)
         self.model = MoabModel()
         self._episode_count = 0
@@ -77,12 +82,15 @@ class MoabSim(SimulatorSession):
             ball_noise=self.model.ball_noise,
             plate_noise=self.model.plate_noise,
         )
-
+        interface = json.loads(interface_str)
         return SimulatorInterface(
-            context=self.get_simulator_context(), json_interface=interface_str
+            name=interface["name"],
+            timeout=interface["timeout"],
+            simulator_context=self.get_simulator_context(),
+            description=interface["description"],
         )
 
-    def get_state(self) -> Schema:
+    def get_state(self) -> Dict[str, Any]:
         return self.model.state()
 
     def _set_velocity_for_speed_and_direction(self, speed: float, direction: float):
@@ -105,7 +113,7 @@ class MoabSim(SimulatorSession):
             self.model.ball_vel.y = vel[1]
             self.model.ball_vel.z = vel[2]
 
-    def episode_start(self, config: Schema) -> None:
+    def episode_start(self, config: Dict[str, Any]) -> None:
         # return to known good state to avoid accidental episode-episode dependencies
         self.model.reset()
 
@@ -173,7 +181,7 @@ class MoabSim(SimulatorSession):
         self.iteration_count = 0
         self._episode_count += 1
 
-    def episode_step(self, action: Schema):
+    def episode_step(self, action: Dict[str, Any]):
         # use new syntax or fall back to old parameter names
         self.model.roll = action.get("input_roll", self.model.roll)
         self.model.pitch = action.get("input_pitch", self.model.pitch)
@@ -204,7 +212,7 @@ class MoabSim(SimulatorSession):
 if __name__ == "__main__":
     try:
         # configuration for talking to server
-        config = ServiceConfig(argv=sys.argv)
+        config = BonsaiClientConfig(argv=sys.argv)
         sim = MoabSim(config)
         sim.model.reset()
         while sim.run():
