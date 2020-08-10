@@ -6,9 +6,6 @@ RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
-# Pull python packages from internal feed
-COPY pip.conf /root/.pip/pip.conf
-
 # Install SDK3 Python
 COPY bonsai3-py ./bonsai3-py
 RUN pip3 install -U setuptools \
