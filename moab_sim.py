@@ -4,23 +4,27 @@ Simulator for the Moab plate+ball balancing device.
 __author__ = "Mike Estee"
 __copyright__ = "Copyright 2020, Microsoft Corp."
 
-# pyright: strict
+# pyright: strict, reportUnknownMemberType=false
 
 import logging
 import os
 import sys
+import json
 
 from jinja2 import Template
 from pyrr import matrix33, vector
 
-from bonsai3 import Schema, ServiceConfig, SimulatorInterface, SimulatorSession
 from moab_model import MoabModel, clamp
+
+from bonsai_common import SimulatorSession, Schema
+from microsoft_bonsai_api.simulator.generated.models import SimulatorInterface
+from microsoft_bonsai_api.simulator.client import BonsaiClientConfig
 
 log = logging.getLogger(__name__)
 
 
 class MoabSim(SimulatorSession):
-    def __init__(self, config: ServiceConfig):
+    def __init__(self, config: BonsaiClientConfig):
         super().__init__(config)
         self.model = MoabModel()
         self._episode_count = 0
@@ -77,9 +81,12 @@ class MoabSim(SimulatorSession):
             ball_noise=self.model.ball_noise,
             plate_noise=self.model.plate_noise,
         )
-
+        interface = json.loads(interface_str)
         return SimulatorInterface(
-            context=self.get_simulator_context(), json_interface=interface_str
+            name=interface["name"],
+            timeout=interface["timeout"],
+            simulator_context=self.get_simulator_context(),
+            description=interface["description"],
         )
 
     def get_state(self) -> Schema:
@@ -204,7 +211,7 @@ class MoabSim(SimulatorSession):
 if __name__ == "__main__":
     try:
         # configuration for talking to server
-        config = ServiceConfig(argv=sys.argv)
+        config = BonsaiClientConfig(argv=sys.argv)
         sim = MoabSim(config)
         sim.model.reset()
         while sim.run():

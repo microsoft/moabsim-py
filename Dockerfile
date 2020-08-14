@@ -10,11 +10,19 @@ RUN apt-get update && \
 COPY pip.conf /root/.pip/pip.conf
 
 # Install SDK3 Python
-COPY bonsai3-py ./bonsai3-py
+# Microsoft-bonsai-api is required to install bonsai-common. The docker context does not include the entire repo, so we 
+# can't copy the diectory. Therefore wheel must be built before attempting to build this DockerFile. 
+# Run the build_microsoft_bonsai_api_wheel.sh script prior to building this Dockerfile.
+COPY microsoft_bonsai_api*.whl ./
+COPY bonsai-common ./bonsai-common
 RUN pip3 install -U setuptools \
-  && cd bonsai3-py \
+  && pip3 install microsoft_bonsai_api*.whl \
+  && cd bonsai-common \
   && python3 setup.py develop \
   && pip3 uninstall -y setuptools
+
+# Delete wheel
+RUN rm microsoft_bonsai_api*.whl
 
 # Set up the simulator
 WORKDIR /sim
@@ -26,4 +34,4 @@ COPY samples/moabsim-py /sim
 RUN pip3 install -r requirements.txt
 
 # This will be the command to run the simulator
-CMD ["python", "moab_sim.py", "--verbose"]
+CMD ["python", "moab_sim.py"]
