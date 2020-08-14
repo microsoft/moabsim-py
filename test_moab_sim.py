@@ -3,13 +3,16 @@ Unit tests for Moab simulator
 """
 __copyright__ = "Copyright 2020, Microsoft Corp."
 
-# pyright: strict
+# Temporarily set reportIncompatibleMethodOverride to false to work
+# around a short-term bug in the typeshed stub builtins file.
+# This can be removed at a later time.
+# pyright: strict, reportIncompatibleMethodOverride=false
 
-import json
 import math
 from typing import Any, Dict, Iterator, cast
 
-from bonsai3 import Schema, ServiceConfig
+from microsoft_bonsai_api.simulator.client import BonsaiClientConfig
+from bonsai_common import Schema
 from moab_model import DEFAULT_PLATE_RADIUS
 from moab_sim import MoabSim
 
@@ -21,7 +24,7 @@ def run_for_duration(config: Schema, duration: float) -> MoabSim:
 
     We do not connect to the platform and drive the loop ourselves.
     """
-    service_config = ServiceConfig()
+    service_config = BonsaiClientConfig(workspace="moab", access_key="utah")
     sim = MoabSim(service_config)
 
     # run with no actions for N seconds.
@@ -152,8 +155,8 @@ class KeyProbe(dict):
     def __init__(self):
         self.found_keys = set()
 
-    def get(self, k: str, default: Any) -> Any:
-        self.found_keys.add(k)
+    def get(self, key: str, default: Any) -> Any:
+        self.found_keys.add(key)
         return default
 
 
@@ -162,14 +165,15 @@ def test_interface():
     This tests that the state, config and action descriptions
     has matching values used by the model.
     """
-    service_config = ServiceConfig()
+    service_config = BonsaiClientConfig(workspace="moab", access_key="utah")
     sim = MoabSim(service_config)
     model = sim.model
     iface = sim.get_interface()
     model_state = model.state()
 
     # state is pull from the model
-    fields = json.loads(iface.json)["description"]["state"]["fields"]
+
+    fields = cast(Dict[str, Any], iface.description)["state"]["fields"]
     state_fields = set(cast(Iterator[str], map(lambda x: x["name"], fields)))
 
     # interface in state
@@ -191,7 +195,7 @@ def test_interface():
             )
 
     # extract config and action from interface
-    fields = json.loads(iface.json)["description"]["config"]["fields"]
+    fields = cast(Dict[str, Any], iface.description)["config"]["fields"]
     config_fields = set(cast(Iterator[str], map(lambda x: x["name"], fields)))
 
     # collect the model config
@@ -218,7 +222,7 @@ def test_interface():
             )
 
     # Now do the actions
-    fields = json.loads(iface.json)["description"]["action"]["fields"]
+    fields = cast(Dict[str, Any], iface.description)["action"]["fields"]
     action_fields = set(cast(Iterator[str], map(lambda x: x["name"], fields)))
 
     # collect the model actions

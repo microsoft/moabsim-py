@@ -7,7 +7,8 @@ __copyright__ = "Copyright 2020, Microsoft Corp."
 
 import time
 
-from bonsai3 import Schema, ServiceConfig
+from bonsai_common import Schema
+from microsoft_bonsai_api.simulator.client import BonsaiClientConfig
 from moab_model import MoabModel
 from moab_sim import MoabSim
 
@@ -37,7 +38,7 @@ def run_sim_for_count(config: Schema, action: Schema, count: int) -> MoabSim:
 
     We do not connect to the platform and drive the loop ourselves.
     """
-    service_config = ServiceConfig()
+    service_config = BonsaiClientConfig(workspace="moab", access_key="utah")
     sim = MoabSim(service_config)
 
     # run with no actions for N seconds.

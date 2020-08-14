@@ -2,3 +2,7 @@
 __pycache__
 build
 test-results
+
+# Internal inkling that is not to be pushed to public github
+base.ink
+moab_tutorial_1_tpl.ink
