@@ -6,9 +6,6 @@ RUN apt-get update && \
   apt-get install -y --no-install-recommends \
   && rm -rf /var/lib/apt/lists/*
 
-# Pull python packages from internal feed
-COPY pip.conf /root/.pip/pip.conf
-
 # Install SDK3 Python
 # Microsoft-bonsai-api is required to install bonsai-common. The docker context does not include the entire repo, so we 
 # can't copy the diectory. Therefore wheel must be built before attempting to build this DockerFile. 
