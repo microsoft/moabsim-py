@@ -6,6 +6,7 @@ __copyright__ = "Copyright 2020, Microsoft Corp."
 # pyright: strict
 
 import time
+import os
 
 from bonsai_common import Schema
 from microsoft_bonsai_api.simulator.client import BonsaiClientConfig
@@ -71,7 +72,10 @@ This tests for:
 # constants for speed tests
 MAX_RUNS = 10
 MAX_ITER = 250
-FPS_FAIL_LIMIT = 500
+
+# use FPS fail limit from env if it is available
+ENV_FPS_FAIL_LIMIT = os.environ.get("MOAB_PERF_TEST_THRESHOLD")
+FPS_FAIL_LIMIT = int(ENV_FPS_FAIL_LIMIT) if ENV_FPS_FAIL_LIMIT else 500
 
 
 def test_model_perf():
@@ -87,14 +91,23 @@ def test_model_perf():
     avg_fps /= MAX_RUNS
 
     print("model average avg fps: ", avg_fps)
-    assert avg_fps > FPS_FAIL_LIMIT, "Iteration speed for Model dropped below 800 fps."
+    assert (
+        avg_fps > FPS_FAIL_LIMIT
+    ), "Iteration speed for Model dropped below {} fps.".format(FPS_FAIL_LIMIT)
 
 
 def test_sim_perf():
     avg_fps = 0
     for _ in range(0, MAX_RUNS):
         start = time.time()
-        run_sim_for_count({}, {"input_pitch": 0.0, "input_roll": 0.0,}, MAX_ITER)
+        run_sim_for_count(
+            {},
+            {
+                "input_pitch": 0.0,
+                "input_roll": 0.0,
+            },
+            MAX_ITER,
+        )
         end = time.time()
 
         fps = MAX_ITER / (end - start)
@@ -104,7 +117,7 @@ def test_sim_perf():
     print("simulator average avg fps: ", avg_fps)
     assert (
         avg_fps > FPS_FAIL_LIMIT
-    ), "Iteration speed for Simulator dropped below 800 fps."
+    ), "Iteration speed for Simulator dropped below {} fps.".format(FPS_FAIL_LIMIT)
 
 
 if __name__ == "__main__":

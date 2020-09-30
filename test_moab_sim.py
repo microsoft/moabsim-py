@@ -9,12 +9,15 @@ __copyright__ = "Copyright 2020, Microsoft Corp."
 # pyright: strict, reportIncompatibleMethodOverride=false
 
 import math
-from typing import Any, Dict, Iterator, cast
+from typing import Any, Dict, Iterator, TypeVar, cast
 
 from microsoft_bonsai_api.simulator.client import BonsaiClientConfig
 from bonsai_common import Schema
 from moab_model import DEFAULT_PLATE_RADIUS
 from moab_sim import MoabSim
+
+_KT = TypeVar("_KT")
+_VT = TypeVar("_VT")
 
 
 def run_for_duration(config: Schema, duration: float) -> MoabSim:
@@ -146,7 +149,7 @@ def test_angle2():
     assert direction < 0.0, "Direction should be negative"
 
 
-class KeyProbe(dict):
+class KeyProbe(Dict[_KT, _VT]):
     """
     A "dictionary" that checks to see which keys
     are queried on it.
@@ -155,7 +158,7 @@ class KeyProbe(dict):
     def __init__(self):
         self.found_keys = set()
 
-    def get(self, key: str, default: Any) -> Any:
+    def get(self, key: str, default: _VT) -> _VT:
         self.found_keys.add(key)
         return default
 
@@ -196,11 +199,11 @@ def test_interface():
 
     # extract config and action from interface
     fields = cast(Dict[str, Any], iface.description)["config"]["fields"]
-    config_fields = set(cast(Iterator[str], map(lambda x: x["name"], fields)))
+    config_fields = set(map(lambda x: x["name"], fields))
 
     # collect the model config
-    config_probe = KeyProbe()
-    sim.episode_start(cast(Dict[str, Any], config_probe))
+    config_probe = KeyProbe()  # type: KeyProbe[str, Any]
+    sim.episode_start(config_probe)
     model_config = config_probe.found_keys
 
     # interface in config
@@ -226,8 +229,8 @@ def test_interface():
     action_fields = set(cast(Iterator[str], map(lambda x: x["name"], fields)))
 
     # collect the model actions
-    action_probe = KeyProbe()
-    sim.episode_step(cast(Dict[str, Any], action_probe))
+    action_probe = KeyProbe()  # type: KeyProbe[str, Any]
+    sim.episode_step(action_probe)
     model_action = action_probe.found_keys
 
     # interface in action

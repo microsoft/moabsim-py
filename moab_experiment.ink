@@ -34,7 +34,7 @@ const CloseEnough = 0.02
 const RadiusOfPlate = 0.1125 
 
 # Velocities measured in meters per sec.
-const MaxVelocity = 1.0
+const MaxVelocity = 3.0
 const MaxInitialVelocity = 0.05
 
 # Noise added to the real ball position to create the estimated ball position
