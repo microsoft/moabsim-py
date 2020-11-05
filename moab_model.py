@@ -210,7 +210,7 @@ class MoabModel:
         perform a linear acceleration of variable towards a destination
         with a hard stop at the destination. returns the position and velocity
         after delta_t has elapsed.
-        
+
         q:      initial position
         dest:   target destination
         vel:    current velocity
@@ -455,9 +455,9 @@ class MoabModel:
         )
 
         # update the derived states
-        self.estimated_speed = cast(float, vector.length(
-            [self.ball_vel.x, self.ball_vel.y, self.ball_vel.z]
-        ))
+        self.estimated_speed = cast(
+            float, vector.length([self.ball_vel.x, self.ball_vel.y, self.ball_vel.z])
+        )
 
         self.estimated_direction = MoabModel.heading_to_point(
             self.estimated_x,

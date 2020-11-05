@@ -15,7 +15,7 @@ RUN pip3 install -U setuptools \
 WORKDIR /sim
 
 # Copy simulator files to /sim
-COPY samples/moabsim-py /sim
+COPY ./ /sim
 
 # Install simulator dependencies
 RUN pip3 install -r requirements.txt

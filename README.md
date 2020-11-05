@@ -29,7 +29,7 @@ pip3 install git+https://github.com/microsoft/bonsai-common
 
 ## Building Dockerfile
 
-docker build -t <IMAGE_NAME> -f Dockerfile ../../
+docker build -t <IMAGE_NAME> -f Dockerfile ./
 
 ## Run Dockerfile local (optional)
 
@@ -44,7 +44,7 @@ docker push <ACR_REGSITRY_NAME>.azurecr.io/bonsai/<IMAGE_NAME>
 
 ## Example (Assuming you logged in)
 
-docker build -t moab -f Dockerfile ../../
+docker build -t moab -f Dockerfile ./
 docker tag moab bonsaisimpreprod.azurecr.io/bonsai/moab
 docker push bonsaisimpreprod.azurecr.io/bonsai/moab
 
