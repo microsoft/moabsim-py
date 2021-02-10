@@ -10,9 +10,12 @@ import logging
 import os
 import sys
 import json
+import requests
 
 from jinja2 import Template
 from pyrr import matrix33, vector
+from typing import Dict
+from functools import partial
 
 from moab_model import MoabModel, clamp
 
@@ -206,6 +209,45 @@ class MoabSim(SimulatorSession):
                 reason,
             )
         )
+
+
+def brain_policy(
+    state: Dict[str, float], exported_brain_url: str = "http://localhost:5000"
+):
+
+    prediction_endpoint = f"{exported_brain_url}/v1/prediction"
+    response = requests.get(prediction_endpoint, json=state)
+
+    return response.json()
+
+
+def test_policy(num_episodes: int = 10):
+    """Test a policy using random actions over a fixed number of episodes
+
+    Parameters
+    ----------
+    num_episodes : int, optional
+        number of iterations to run, by default 10
+    """
+    policy = partial(brain_policy, exported_brain_url="http://localhost:5000")
+    config = BonsaiClientConfig()
+    sim = MoabSim(config)
+    # test_config = {"length": 1.5}
+    for episode in range(num_episodes):
+        iteration = 0
+        terminal = False
+        sim_state = sim.episode_start(config=default_config)
+        sim_state = sim.get_state()
+        while not terminal:
+            action = policy(sim_state)
+            sim.episode_step(action)
+            sim_state = sim.get_state()
+            print(f"Running iteration #{iteration} for episode #{episode}")
+            print(f"Observations: {sim_state}")
+            iteration += 1
+            terminal = (iteration >= num_iterations) or sim.halted()
+
+    return sim
 
 
 if __name__ == "__main__":
