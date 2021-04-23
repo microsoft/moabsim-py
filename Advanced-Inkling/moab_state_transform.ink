@@ -4,7 +4,8 @@
 # Copyright 2020 Microsoft
 # This code is licensed under MIT license (see LICENSE for details)
 
-# Moab Sample Using Action Transform during Training Only
+# Moab Sample Using State Transform during Training/Assessment Only
+# Exported brain will still expect ObservableState type as input
 
 ###
 
@@ -29,10 +30,22 @@ const DefaultTimeDelta = 0.045
 # Maximum distance per step in meters
 const MaxDistancePerStep = DefaultTimeDelta * MaxVelocity
 
-# Maximum plate angle in degrees
-const MaxPlateAngle = 22
-
 # State received from the simulator after each iteration
+type SimState {
+    # Ball X,Y position
+    ball_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+    ball_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+
+    # Ball X,Y velocity
+    ball_vel_x: number<-MaxVelocity .. MaxVelocity>,
+    ball_vel_y: number<-MaxVelocity .. MaxVelocity>,
+
+    # Target stationary X,Y position
+    target_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+    target_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+}
+
+# Transformed state consisting of error from target
 type ObservableState {
     # Ball X,Y position
     ball_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
@@ -41,11 +54,6 @@ type ObservableState {
     # Ball X,Y velocity
     ball_vel_x: number<-MaxVelocity .. MaxVelocity>,
     ball_vel_y: number<-MaxVelocity .. MaxVelocity>,
-}
-
-type BrainAction {
-    input_pitch: number<-MaxPlateAngle .. MaxPlateAngle>, # rotate about x-axis
-    input_roll: number<-MaxPlateAngle .. MaxPlateAngle>, # rotate about y-axis
 }
 
 # Action provided as output by policy and sent as
@@ -72,24 +80,32 @@ type SimConfig {
     # the full plate rotation range supported by the hardware.
     initial_pitch: number<-1 .. 1>,
     initial_roll: number<-1 .. 1>,
+
+    # Target stationary X,Y position
+    target_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+    target_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
 }
 
-function TransformAction(a: BrainAction): SimAction {
+# State transform function definition from absolute to error
+# like commonly found in control theory
+function TransformState (s: SimState): ObservableState {
     return {
-        input_pitch: a.input_pitch / MaxPlateAngle,
-        input_roll: a.input_roll / MaxPlateAngle,
+        ball_x: s.target_x - s.ball_x,
+        ball_y: s.target_y - s.ball_y,
+        ball_vel_x: s.target_x - s.ball_vel_x,
+        ball_vel_y: s.target_y - s.ball_vel_y,
     }
 }
 
 # Define a concept graph with a single concept
 graph (input: ObservableState) {
-    concept MoveToCenter(input): BrainAction {
+    concept MoveToCenter(input): SimAction {
         curriculum {
             # The source of training for this concept is a simulator that
             #  - can be configured for each episode using fields defined in SimConfig,
             #  - accepts per-iteration actions defined in SimAction, and
             #  - outputs states with the fields defined in SimState.
-            source simulator MoabSim(Action: SimAction, Config: SimConfig): ObservableState {
+            source simulator MoabSim(Action: SimAction, Config: SimConfig): SimState {
                 # Automatically launch the simulator with this
                 # registered package name.
             }
@@ -98,13 +114,15 @@ graph (input: ObservableState) {
                 # Limit episodes to 250 iterations instead of the default 1000.
                 EpisodeIterationLimit: 250
             }
-
-            action TransformAction
+            
+            # Instruct the training/assessment session to use the state transform function
+            # Exporting a brain will still expect the ObservableAction type
+            state TransformState
 
             # The objective of training is expressed as a goal with two
             # subgoals: don't let the ball fall off the plate, and drive
             # the ball to the center of the plate.
-            goal (State: ObservableState) {
+            goal (State: SimState) {
                 avoid `Fall Off Plate`: Math.Hypot(State.ball_x, State.ball_y) in Goal.RangeAbove(RadiusOfPlate * 0.8)
                 drive `Center Of Plate`: [State.ball_x, State.ball_y] in Goal.Sphere([0, 0], CloseEnough)
             }
@@ -121,6 +139,9 @@ graph (input: ObservableState) {
 
                     initial_pitch: number<-0.2 .. 0.2>,
                     initial_roll: number<-0.2 .. 0.2>,
+
+                    target_x: 0,
+                    target_y: 0,
                 }
             }
         }

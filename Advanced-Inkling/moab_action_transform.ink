@@ -4,7 +4,8 @@
 # Copyright 2020 Microsoft
 # This code is licensed under MIT license (see LICENSE for details)
 
-# Moab Sample Using State Transform during Training Only
+# Moab Sample Using Action Transform during Training/Assessment Only
+# Exported brain will still be the BrainAction type definition
 
 ###
 
@@ -29,15 +30,8 @@ const DefaultTimeDelta = 0.045
 # Maximum distance per step in meters
 const MaxDistancePerStep = DefaultTimeDelta * MaxVelocity
 
-type SimState {
-    # Ball X,Y position
-    ball_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
-    ball_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
-
-    # Ball X,Y velocity
-    ball_vel_x: number<-MaxVelocity .. MaxVelocity>,
-    ball_vel_y: number<-MaxVelocity .. MaxVelocity>,
-}
+# Maximum plate angle in degrees
+const MaxPlateAngle = 22
 
 # State received from the simulator after each iteration
 type ObservableState {
@@ -51,6 +45,15 @@ type ObservableState {
 }
 
 # Action provided as output by policy and sent as
+# input to action transform
+type BrainAction {
+    # Range is in degrees
+    # the full plate rotation range supported by the hardware.
+    input_pitch: number<-MaxPlateAngle .. MaxPlateAngle>, # rotate about x-axis
+    input_roll: number<-MaxPlateAngle .. MaxPlateAngle>, # rotate about y-axis
+}
+
+# Action transformed from degrees to normalized between -1 and 1 and sent as
 # input to the simulator
 type SimAction {
     # Range -1 to 1 is a scaled value that represents
@@ -60,7 +63,6 @@ type SimAction {
 }
 
 # Per-episode configuration that can be sent to the simulator.
-# All iterations within an episode will use the same configuration.
 type SimConfig {
     # Model initial ball conditions
     initial_x: number<-RadiusOfPlate .. RadiusOfPlate>, # in (m)
@@ -76,40 +78,40 @@ type SimConfig {
     initial_roll: number<-1 .. 1>,
 }
 
-function TransformState (s: SimState): ObservableState {
+# Action transform function definition from degrees to normalized
+function TransformAction(a: BrainAction): SimAction {
     return {
-        ball_x: 0 - s.ball_x,
-        ball_y: 0 - s.ball_y,
-        ball_vel_x: 0 - s.ball_vel_x,
-        ball_vel_y: 0 - s.ball_vel_y,
+        input_pitch: a.input_pitch / MaxPlateAngle,
+        input_roll: a.input_roll / MaxPlateAngle,
     }
 }
 
 # Define a concept graph with a single concept
 graph (input: ObservableState) {
-    concept MoveToCenter(input): SimAction {
+    concept MoveToCenter(input): BrainAction {
         curriculum {
             # The source of training for this concept is a simulator that
             #  - can be configured for each episode using fields defined in SimConfig,
             #  - accepts per-iteration actions defined in SimAction, and
             #  - outputs states with the fields defined in SimState.
-            source simulator MoabSim(Action: SimAction, Config: SimConfig): SimState {
+            source simulator MoabSim(Action: SimAction, Config: SimConfig): ObservableState {
                 # Automatically launch the simulator with this
                 # registered package name.
-                package "Moab"
             }
 
             training {
                 # Limit episodes to 250 iterations instead of the default 1000.
                 EpisodeIterationLimit: 250
             }
-
-            state TransformState
+            
+            # Instruct the training/assessment session to use the action transform function
+            # Exporting a brain will still output the BrainAction type
+            action TransformAction
 
             # The objective of training is expressed as a goal with two
             # subgoals: don't let the ball fall off the plate, and drive
             # the ball to the center of the plate.
-            goal (State: SimState) {
+            goal (State: ObservableState) {
                 avoid `Fall Off Plate`: Math.Hypot(State.ball_x, State.ball_y) in Goal.RangeAbove(RadiusOfPlate * 0.8)
                 drive `Center Of Plate`: [State.ball_x, State.ball_y] in Goal.Sphere([0, 0], CloseEnough)
             }
