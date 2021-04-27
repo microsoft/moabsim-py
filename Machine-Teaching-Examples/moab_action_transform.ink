@@ -1,11 +1,11 @@
 ###
 
 # MSFT Bonsai 
-# Copyright 2020 Microsoft
+# Copyright 2021 Microsoft
 # This code is licensed under MIT license (see LICENSE for details)
 
-# Moab Sample Using Action Transform during Training/Assessment Only
-# Exported brain will still be the BrainAction type definition
+# Moab Sample illustrating how to use an action transform to train a concept
+# with an action space that differs from the actions expected by the simulator.
 
 ###
 
@@ -44,8 +44,8 @@ type ObservableState {
     ball_vel_y: number<-MaxVelocity .. MaxVelocity>,
 }
 
-# Action provided as output by policy and sent as
-# input to action transform
+# Action learned by the concept, and passed to the action transform. 
+# pitch and roll actions in degrees.
 type BrainAction {
     # Range is in degrees
     # the full plate rotation range supported by the hardware.
@@ -53,8 +53,7 @@ type BrainAction {
     input_roll: number<-MaxPlateAngle .. MaxPlateAngle>, # rotate about y-axis
 }
 
-# Action transformed from degrees to normalized between -1 and 1 and sent as
-# input to the simulator
+# Action expected by the sim, with pitch and roll normalized between -1 and 1
 type SimAction {
     # Range -1 to 1 is a scaled value that represents
     # the full plate rotation range supported by the hardware.
@@ -97,6 +96,7 @@ graph (input: ObservableState) {
             source simulator MoabSim(Action: SimAction, Config: SimConfig): ObservableState {
                 # Automatically launch the simulator with this
                 # registered package name.
+                package "Moab"
             }
 
             training {
@@ -104,8 +104,8 @@ graph (input: ObservableState) {
                 EpisodeIterationLimit: 250
             }
             
-            # Instruct the training/assessment session to use the action transform function
-            # Exporting a brain will still output the BrainAction type
+            # Specify the action transformation function used when training or assessing using the simulator.
+            # This transform is _not_ included when the brain is exported — it is only used in training and assessment.
             action TransformAction
 
             # The objective of training is expressed as a goal with two

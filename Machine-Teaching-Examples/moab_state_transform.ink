@@ -4,9 +4,8 @@
 # Copyright 2020 Microsoft
 # This code is licensed under MIT license (see LICENSE for details)
 
-# Moab Sample Using State Transform during Training/Assessment Only
-# Exported brain will still expect ObservableState type as input
-
+# Moab Sample illustrating how to use an state transform to train a brain
+# with an input space that differs from the states output by the simulator.
 ###
 
 inkling "2.0"
@@ -30,7 +29,12 @@ const DefaultTimeDelta = 0.045
 # Maximum distance per step in meters
 const MaxDistancePerStep = DefaultTimeDelta * MaxVelocity
 
-# State received from the simulator after each iteration
+# What velocity do we want the ball to have when it reaches the target?
+# (This could be configurable in the sim to make it non-constant. Kept here for simplicity.)
+const TargetVelocityX = 0
+const TargetVelocityY = 0
+
+# State received from the simulator after each iteration. It includes absolute positions and velocities.
 type SimState {
     # Ball X,Y position
     ball_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
@@ -45,15 +49,15 @@ type SimState {
     target_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
 }
 
-# Transformed state consisting of error from target
+# Brain input state, consisting of error from target value for position and velocity.
 type ObservableState {
     # Ball X,Y position
-    ball_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
-    ball_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+    ball_x_error: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+    ball_y_error: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
 
     # Ball X,Y velocity
-    ball_vel_x: number<-MaxVelocity .. MaxVelocity>,
-    ball_vel_y: number<-MaxVelocity .. MaxVelocity>,
+    ball_vel_x_error: number<-MaxVelocity .. MaxVelocity>,
+    ball_vel_y_error: number<-MaxVelocity .. MaxVelocity>,
 }
 
 # Action provided as output by policy and sent as
@@ -66,7 +70,6 @@ type SimAction {
 }
 
 # Per-episode configuration that can be sent to the simulator.
-# All iterations within an episode will use the same configuration.
 type SimConfig {
     # Model initial ball conditions
     initial_x: number<-RadiusOfPlate .. RadiusOfPlate>, # in (m)
@@ -81,7 +84,7 @@ type SimConfig {
     initial_pitch: number<-1 .. 1>,
     initial_roll: number<-1 .. 1>,
 
-    # Target stationary X,Y position
+    # Target X,Y position
     target_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
     target_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
 }
@@ -90,10 +93,10 @@ type SimConfig {
 # like commonly found in control theory
 function TransformState (s: SimState): ObservableState {
     return {
-        ball_x: s.target_x - s.ball_x,
-        ball_y: s.target_y - s.ball_y,
-        ball_vel_x: s.target_x - s.ball_vel_x,
-        ball_vel_y: s.target_y - s.ball_vel_y,
+        ball_x_error: s.target_x - s.ball_x,
+        ball_y_error: s.target_y - s.ball_y,
+        ball_vel_x_error: TargetVelocityX - s.ball_vel_x,
+        ball_vel_y_error: TargetVelocityY - s.ball_vel_y,
     }
 }
 
@@ -108,6 +111,7 @@ graph (input: ObservableState) {
             source simulator MoabSim(Action: SimAction, Config: SimConfig): SimState {
                 # Automatically launch the simulator with this
                 # registered package name.
+                package "Moab"
             }
 
             training {
@@ -115,8 +119,8 @@ graph (input: ObservableState) {
                 EpisodeIterationLimit: 250
             }
             
-            # Instruct the training/assessment session to use the state transform function
-            # Exporting a brain will still expect the ObservableAction type
+            # Specify the state  transformation function used when training or assessing using the simulator.
+            # This transform is _not_ included when the brain is exported — it is only used in training and assessment.
             state TransformState
 
             # The objective of training is expressed as a goal with two
