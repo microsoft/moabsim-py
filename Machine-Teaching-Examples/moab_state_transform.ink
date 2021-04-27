@@ -4,8 +4,12 @@
 # Copyright 2020 Microsoft
 # This code is licensed under MIT license (see LICENSE for details)
 
-# Moab Sample illustrating how to use an state transform to train a brain
+# Moab Sample illustrating how to use a state transform to train a brain
 # with an input space that differs from the states output by the simulator.
+
+# When using an exported brain with this sample, ensure to use the
+# ObservableState type definition from the environment
+
 ###
 
 inkling "2.0"
