@@ -13,9 +13,8 @@
 # but adding memory is helpful when features are hard to define or don't
 # capture everything that is relevant.
 
-# Exporting a brain with memory handles the history for you. There is a
-# recurrent "reservoir" model with an internal state of size 100, called
-# an Echo State Network.
+# Training and exporting a brain with memory handles the history for you 
+# internally, i.e. you simply need to provide the current ObservableState.
 
 ###
 
