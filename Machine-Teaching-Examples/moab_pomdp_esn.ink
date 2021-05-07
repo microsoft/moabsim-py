@@ -11,7 +11,7 @@
 
 # We recommend including state information if you can measure it (velocity),
 # but adding memory is helpful when features are hard to define or don't
-# everything that is relevant.
+# capture everything that is relevant.
 
 # Exporting a brain with memory handles the history for you. There is a
 # recurrent "reservoir" model with an internal state of size 100, called
