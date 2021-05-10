@@ -110,7 +110,7 @@ graph (input: ObservableState) {
                 # none - no memory, learned actions depend on current state
                 # state - memory of past states
                 # state and action - memory of past states and actions.
-                MemoryMode: "state"
+                MemoryMode: "state and action"
             }
 
             # The objective of training is expressed as a goal with two
