@@ -1,7 +1,7 @@
 ###
 
 # MSFT Bonsai 
-# Copyright 2020 Microsoft
+# Copyright 2021 Microsoft
 # This code is licensed under MIT license (see LICENSE for details)
 
 # Moab Tutorial 2
@@ -22,10 +22,17 @@ using Goal
 const RadiusOfPlate = 0.1125 
 
 # Velocities measured in meters per sec.
-const MaxVelocity = 1.0
+const MaxVelocity = 6.0
+const MaxInitialVelocity = 1.0
 
 # Threshold for ball placement
 const CloseEnough = 0.02
+
+# Default time delta between simulation steps (s)
+const DefaultTimeDelta = 0.045
+
+# Maximum distance per step in meters
+const MaxDistancePerStep = DefaultTimeDelta * MaxVelocity
 
 # Ping-Pong ball constants
 const PingPongRadius = 0.020    # m
@@ -34,8 +41,8 @@ const PingPongShell = 0.0002    # m
 # State received from the simulator after each iteration
 type ObservableState {
     # Ball X,Y position
-    ball_x: number<-RadiusOfPlate .. RadiusOfPlate>,
-    ball_y: number<-RadiusOfPlate .. RadiusOfPlate>,
+    ball_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+    ball_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
 
     # Ball X,Y velocity
     ball_vel_x: number<-MaxVelocity .. MaxVelocity>,
@@ -59,8 +66,8 @@ type SimConfig {
     initial_y: number<-RadiusOfPlate .. RadiusOfPlate>,
 
     # Model initial ball velocity conditions
-    initial_vel_x: number<-MaxVelocity .. MaxVelocity>,  # in (m/s)
-    initial_vel_y: number<-MaxVelocity .. MaxVelocity>,
+    initial_vel_x: number<-MaxInitialVelocity .. MaxInitialVelocity>,  # in (m/s)
+    initial_vel_y: number<-MaxInitialVelocity .. MaxInitialVelocity>,
 
     # Range -1 to 1 is a scaled value that represents
     # the full plate rotation range supported by the hardware.
@@ -107,8 +114,8 @@ graph (input: ObservableState) {
                     initial_y: number<-RadiusOfPlate * 0.6 .. RadiusOfPlate * 0.6>,
                     
                     # Configure the initial velocities of the ball
-                    initial_vel_x: number<-MaxVelocity * 0.4 .. MaxVelocity * 0.4>,
-                    initial_vel_y: number<-MaxVelocity * 0.4 .. MaxVelocity * 0.4>,
+                    initial_vel_x: number<-MaxInitialVelocity * 0.4 .. MaxInitialVelocity * 0.4>,
+                    initial_vel_y: number<-MaxInitialVelocity * 0.4 .. MaxInitialVelocity * 0.4>,
                     
                     # Configure the initial plate angles
                     initial_pitch: number<-0.2 .. 0.2>,
