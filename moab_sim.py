@@ -2,7 +2,7 @@
 Simulator for the Moab plate+ball balancing device.
 """
 __author__ = "Mike Estee"
-__copyright__ = "Copyright 2020, Microsoft Corp."
+__copyright__ = "Copyright 2021, Microsoft Corp."
 
 # pyright: strict, reportUnknownMemberType=false
 
