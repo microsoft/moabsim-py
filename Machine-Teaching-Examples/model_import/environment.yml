@@ -1,0 +1,12 @@
+name: bonsai-model-import
+dependencies:
+- python=3.7
+- pip=19.1.1
+- pip:
+  - microsoft-bonsai-api
+  - bonsai-cli
+  - matplotlib
+  - scipy
+  - numpy
+  - tensorflow==1.15.2
+  - keras2onnx==1.7.0
