@@ -1,4 +1,4 @@
-name: bonsai-model-import
+name: model-import
 dependencies:
 - python=3.7
 - pip=19.1.1
@@ -11,5 +11,5 @@ dependencies:
   - tensorflow==1.15.2
   - keras2onnx==1.7.0
   - cryptography==2.9.2
-  - keras==2.4.2
+  - keras==2.3.1
   - jupyter==1.0.0
