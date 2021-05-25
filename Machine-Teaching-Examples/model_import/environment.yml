@@ -10,3 +10,6 @@ dependencies:
   - numpy
   - tensorflow==1.15.2
   - keras2onnx==1.7.0
+  - cryptography==2.9.2
+  - keras==2.4.2
+  - jupyter==1.0.0
