@@ -35,6 +35,21 @@ const DefaultTimeDelta = 0.045
 const MaxDistancePerStep = DefaultTimeDelta * MaxVelocity
 
 # State received from the simulator after each iteration
+
+type SimState {
+    # Ball X,Y position
+    ball_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+    ball_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+
+    # Ball X,Y velocity
+    ball_vel_x: number<-MaxVelocity .. MaxVelocity>,
+    ball_vel_y: number<-MaxVelocity .. MaxVelocity>,
+    
+    # Testing added sim observables
+    estimated_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+    estimated_y:number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+}
+
 type ObservableState {
     # Ball X,Y position
     ball_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
@@ -43,8 +58,8 @@ type ObservableState {
     # Ball X,Y velocity
     ball_vel_x: number<-MaxVelocity .. MaxVelocity>,
     ball_vel_y: number<-MaxVelocity .. MaxVelocity>,
+    
 }
-
 # Action provided as output by policy and sent as
 # input to the simulator
 type SimAction {
@@ -71,18 +86,22 @@ type SimConfig {
     initial_roll: number<-1 .. 1>,
 }
 
+
+
 # Define a concept graph with a single concept
-graph (input: ObservableState) {
-    concept ImportedConcept(input): ObservableState {
-        import {Model: "dummy_state_transform5"} 
+graph (input: SimState) {
+    
+    concept ImportedConcept(input): SimState {
+        import {Model: "savedmodel15"} 
     }
+
     concept MoveToCenter(ImportedConcept): SimAction {
         curriculum {
             # The source of training for this concept is a simulator that
             #  - can be configured for each episode using fields defined in SimConfig,
             #  - accepts per-iteration actions defined in SimAction, and
             #  - outputs states with the fields defined in SimState.
-            source simulator MoabSim(Action: SimAction, Config: SimConfig): ObservableState {
+            source simulator MoabSim(Action: SimAction, Config: SimConfig): SimState {
                 # Automatically launch the simulator with this
                 # registered package name.
                 package "Moab"
@@ -96,7 +115,7 @@ graph (input: ObservableState) {
             # The objective of training is expressed as a goal with two
             # subgoals: don't let the ball fall off the plate, and drive
             # the ball to the center of the plate.
-            goal (State: ObservableState) {
+            goal (State: SimState) {
                 avoid `Fall Off Plate`:
                     Math.Hypot(State.ball_x, State.ball_y)
                     in Goal.RangeAbove(RadiusOfPlate * 0.8)

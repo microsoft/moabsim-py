@@ -59,5 +59,6 @@ This sample illustrates how to import a Machine Learning [ML] model in bonsai:
        }
        ```
     2. Build the ML model as an imported concept named ImportedConcept: click `Build ImportedConcept` 
-    3. Trained the brain: click `Train MoveToCenter` 
+    3. Trained the brain: click `Train MoveToCenter` (see below for an expected brain training graph) 
+        ![brain training](training-graph.png)
 
