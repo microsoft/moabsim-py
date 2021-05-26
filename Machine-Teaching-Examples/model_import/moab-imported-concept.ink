@@ -1,15 +1,23 @@
 ###
 
 # MSFT Bonsai 
-# Copyright 2020 Microsoft
+# Copyright 2021 Microsoft
 # This code is licensed under MIT license (see LICENSE for details)
 
-# Moab Tutorial 1
-# This introductory sample demonstrates how to teach a policy for 
-# controlling a ball on the plate of a "Moab" hardware device. 
+# Moab sample illustrating how to import a pre-tained neural network
+# model in to a bonsai brain solution. Use the jupyter notebook to
+# create a dummy deep state transform model in either Tensorflow v1.15.2 
+# SavedModelBuilder or ONNX format.
 
-# To understand this Inkling better, please follow our tutorial walkthrough: 
-# https://aka.ms/moab/tutorial1
+# Use the bonsai-cli to import the model to the bonsai service:
+
+# bonsai imported model create
+#   --name <ml-model-name>
+#   --modelfilepath <model>
+#   --description "state transform NN"
+#   --display-name <ml-model-name>
+
+# Where: <model> might be state_transform_deep.zip or state_transform_deep.onnx
 
 ###
 
@@ -36,7 +44,7 @@ const MaxDistancePerStep = DefaultTimeDelta * MaxVelocity
 
 # State received from the simulator after each iteration
 
-type SimState {
+type ObservableState {
     # Ball X,Y position
     ball_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
     ball_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
@@ -50,16 +58,6 @@ type SimState {
     estimated_y:number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
 }
 
-type ObservableState {
-    # Ball X,Y position
-    ball_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
-    ball_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
-
-    # Ball X,Y velocity
-    ball_vel_x: number<-MaxVelocity .. MaxVelocity>,
-    ball_vel_y: number<-MaxVelocity .. MaxVelocity>,
-    
-}
 # Action provided as output by policy and sent as
 # input to the simulator
 type SimAction {
@@ -89,10 +87,15 @@ type SimConfig {
 
 
 # Define a concept graph with a single concept
-graph (input: SimState) {
+graph (input: ObservableState) {
     
-    concept ImportedConcept(input): SimState {
-        import {Model: "savedmodel15"} 
+    # Add the imported concept by name with the correct type definitions
+    # - can only have one input
+    # - cannot use image inputs
+    # - must have an input state with the same dimesnions as the Inkling object
+    #   it maps to
+    concept ImportedConcept(input): ObservableState {
+        import {Model: "<ml-model-name>"} 
     }
 
     concept MoveToCenter(ImportedConcept): SimAction {
@@ -101,7 +104,7 @@ graph (input: SimState) {
             #  - can be configured for each episode using fields defined in SimConfig,
             #  - accepts per-iteration actions defined in SimAction, and
             #  - outputs states with the fields defined in SimState.
-            source simulator MoabSim(Action: SimAction, Config: SimConfig): SimState {
+            source simulator MoabSim(Action: SimAction, Config: SimConfig): ObservableState {
                 # Automatically launch the simulator with this
                 # registered package name.
                 package "Moab"
@@ -115,7 +118,7 @@ graph (input: SimState) {
             # The objective of training is expressed as a goal with two
             # subgoals: don't let the ball fall off the plate, and drive
             # the ball to the center of the plate.
-            goal (State: SimState) {
+            goal (State: ObservableState) {
                 avoid `Fall Off Plate`:
                     Math.Hypot(State.ball_x, State.ball_y)
                     in Goal.RangeAbove(RadiusOfPlate * 0.8)
