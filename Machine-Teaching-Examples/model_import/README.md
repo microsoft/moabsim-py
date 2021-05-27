@@ -3,9 +3,8 @@
 This sample illustrates how to import a Machine Learning [ML] model in bonsai:
 1. We build a ML model using tensorflow-keras
    1. note: other frameworks such as pure tensorflow are supported, in this sample we focus on keras
-   2. We illustrate by building two models:
+   2. We illustrate by building a dummy deep transform:
       1. A keras model (deep neural net) that transforms the input by applying a non linear transformation
-      2. A keras model that transform the input by a trivial multiplication by 2
 
 2. Save the ML model as either
    1. `tensorflow SavedModel` format OR
@@ -42,7 +41,7 @@ This sample illustrates how to import a Machine Learning [ML] model in bonsai:
         bonsai importedmodel create 
             --name <ml-model-name> 
             --modelfilepath ./state_transform_deep.onnx
-            --description "state transform tf SavedModel" 
+            --description "state transform ONNX" 
             --display-name <ml-model-name>
         ```
  1. Use the imported model to train your brain using a Moab sample
