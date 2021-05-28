@@ -4,7 +4,7 @@ This sample illustrates how to import a Machine Learning [ML] model in Bonsai:
 1. We build a ML model using tensorflow-keras
    1. note: other frameworks such as pure Tensorflow are supported, in this sample we focus on Keras
    2. We illustrate by building a dummy deep transform:
-      1. A keras model (deep neural net) that transforms the input by applying a non linear transformation
+      1. A Keras model (deep neural net) that transforms the input by applying a non linear transformation
 
 2. Save the ML model as either
    1. `tensorflow SavedModel` format OR
