@@ -9,7 +9,7 @@
 # create a dummy deep state transform model in either Tensorflow v1.15.2 
 # SavedModelBuilder or ONNX format.
 
-# Use the bonsai-cli to import the model to the bonsai service:
+# Use the bonsai-cli to import the model to Bonsai:
 
 # bonsai imported model create
 #   --name <ml-model-name>
