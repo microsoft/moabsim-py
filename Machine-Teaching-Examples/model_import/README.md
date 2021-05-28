@@ -1,6 +1,6 @@
 # How To: build and import a tensorflow-keras model in bonsai
 
-This sample illustrates how to import a Machine Learning [ML] model in bonsai:
+This sample illustrates how to import a Machine Learning [ML] model in Bonsai:
 1. We build a ML model using tensorflow-keras
    1. note: other frameworks such as pure tensorflow are supported, in this sample we focus on keras
    2. We illustrate by building a dummy deep transform:
@@ -62,4 +62,3 @@ This sample illustrates how to import a Machine Learning [ML] model in bonsai:
     2. Build the ML model as an imported concept named ImportedConcept: click `Build ImportedConcept` 
     3. Trained the brain: click `Train MoveToCenter` (see below for an expected brain training graph) 
         ![brain training](training-graph.png)
-
