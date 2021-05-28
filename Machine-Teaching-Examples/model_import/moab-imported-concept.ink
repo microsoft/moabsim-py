@@ -17,7 +17,9 @@
 #   --description "state transform NN"
 #   --display-name <ml-model-name>
 
-# Where: <model> might be state_transform_deep.zip or state_transform_deep.onnx
+# Where: 
+#    <model> might be state_transform_deep.zip or state_transform_deep.onnx
+#    <ml-model-name> might be "My ML Model"
 
 ###
 
@@ -95,7 +97,7 @@ graph (input: ObservableState) {
     # - must have an input state with the same dimesnions as the Inkling object
     #   it maps to
     concept ImportedConcept(input): ObservableState {
-        import {Model: "<ml-model-name>"} 
+        import {Model: "My ML Model"} 
     }
 
     concept MoveToCenter(ImportedConcept): SimAction {
