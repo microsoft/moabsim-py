@@ -94,7 +94,7 @@ graph (input: ObservableState) {
     # Add the imported concept by name with the correct type definitions
     # - can only have one input
     # - cannot use image inputs
-    # - must have an input state with the same dimesnions as the Inkling object
+    # - must have an input with the same dimensions as the Inkling concept
     #   it maps to
     concept ImportedConcept(input): ObservableState {
         import {Model: "My ML Model"} 
