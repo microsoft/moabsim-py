@@ -9,7 +9,7 @@ This sample illustrates how to import a Machine Learning [ML] model in Bonsai:
 2. Save the ML model as either
    1. `tensorflow SavedModel` format OR
    2. `onnx` format
-3. Import the saved model to the bonsai platform using bonsai-cli 
+3. Import the saved model to the Bonsai platform using `bonsai-cli`
 4. Use it in the Moab example.
 
 <img src="imported-concept-graph.png" alt="drawing" width="300">
