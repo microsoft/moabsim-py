@@ -5,7 +5,7 @@
 # This code is licensed under MIT license (see LICENSE for details)
 
 # Moab sample illustrating how to import a pre-trained neural network
-# model in to a bonsai brain solution. Use the jupyter notebook to
+# model in a Bonsai brain. Use the Jupyter notebook to
 # create a dummy deep state transform model in either Tensorflow v1.15.2 
 # SavedModelBuilder or ONNX format.
 
