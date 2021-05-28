@@ -131,7 +131,7 @@ graph (input: ObservableState) {
                     State.obstacle_distance in Goal.RangeBelow(Cushion)
             }
 
-			training {
+            training {
                 # Limit episodes to 250 iterations instead of the default 1000.
                 EpisodeIterationLimit: 250
             }
