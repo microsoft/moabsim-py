@@ -97,12 +97,20 @@ def test_train_brain(brain_name, brain_version, inkling_fname, simulator_package
     ))
     concept_names = ['ImportedConcept', 'MoveToCenter']
     for concept in concept_names:
-        os.system('bonsai brain version start-training -n {} --version {} --simulator-package-name {} -c {}'.format(
-            brain_name,
-            brain_version,
-            simulator_package_name,
-            concept
-        ))
+        time.sleep(20)
+        if concept == 'ImportedConcept':
+            os.system('bonsai brain version start-training -n {} --version {} -c {}'.format(
+                brain_name,
+                brain_version,
+                concept
+            ))
+        else:
+            os.system('bonsai brain version start-training -n {} --version {} --simulator-package-name {} -c {}'.format(
+                brain_name,
+                brain_version,
+                simulator_package_name,
+                concept
+            ))
         
         # Do not continue until training is complete
         running = True
