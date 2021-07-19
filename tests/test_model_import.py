@@ -4,15 +4,14 @@ retrieval from LogAnalyticsDataClient. Usage:
 
 Train a brain using model import's instructions, then run
 
-pytest \
+pytest tests\test_model_import.py -s \
     --brain_name <BRAIN_NAME> \
-    --brain_version <BRAIN_VERSION> \
-    --concept_name <CONCEPT_NAME> \
-    --file_name assess_config.json \
-    --sim_package_name Moab \
-    --instance_count 30 \
+    --log_analy_workspace <LAW_WORKSPACE_ID> \
     --custom_assess_name <CUSTOM_ASSESSMENT_NAME> \
-    --log_analy_workspace <LAW_WORKSPACE_ID>
+    --model_file_path "./Machine-Teaching-Examples/model_import/state_transform_deep.zip"
+
+    or 
+    --model_file_path "./Machine-Teaching-Examples/model_import/state_transform_deep.onnx"
 """
 
 __author__ = "Journey McDowell"
@@ -30,6 +29,7 @@ import ast
 import json
 import matplotlib.pyplot as plt
 import time
+import pdb
 
 # Allowing optional flags to replace defaults for pytest from tests\conftest.py
 @pytest.fixture()
@@ -50,8 +50,12 @@ def file_name(pytestconfig):
     return pytestconfig.getoption("file_name")
 
 @pytest.fixture()
-def sim_package_name(pytestconfig):
-    return pytestconfig.getoption("sim_package_name")
+def simulator_package_name(pytestconfig):
+    return pytestconfig.getoption("simulator_package_name")
+
+@pytest.fixture()
+def inkling_fname(pytestconfig):
+    return pytestconfig.getoption("inkling_fname")
 
 @pytest.fixture()
 def instance_count(pytestconfig):
@@ -65,20 +69,71 @@ def custom_assess_name(pytestconfig):
 def log_analy_workspace(pytestconfig):
     return pytestconfig.getoption("log_analy_workspace")
 
+@pytest.fixture()
+def import_name(pytestconfig):
+    return pytestconfig.getoption("import_name")
+
+@pytest.fixture()
+def model_file_path(pytestconfig):
+    return pytestconfig.getoption("model_file_path")
+
+
+# Use CLI to import a ML model as .onnx or tf
+def test_model_import(import_name, model_file_path):
+    os.system('bonsai importedmodel create --name "{}" --modelfilepath {}'.format(
+        import_name,
+        model_file_path,
+    ))
+
+# Use CLI to create, upload inkling, train, and wait til complete
+def test_train_brain(brain_name, brain_version, inkling_fname, simulator_package_name):
+    os.system('bonsai brain create -n {}'.format(
+        brain_name,
+    ))
+    os.system('bonsai brain version update-inkling -n {} --version {} -f {}'.format(
+        brain_name,
+        brain_version,
+        inkling_fname
+    ))
+    concept_names = ['ImportedConcept', 'MoveToCenter']
+    for concept in concept_names:
+        os.system('bonsai brain version start-training -n {} --version {} --simulator-package-name {} -c {}'.format(
+            brain_name,
+            brain_version,
+            simulator_package_name,
+            concept
+        ))
+        
+        # Do not continue until training is complete
+        running = True
+        while running:
+            os.system('bonsai brain version show --name {} --version {} -o json > status.json'.format(
+                brain_name,
+                brain_version,
+            ))
+            with open('status.json') as fname:
+                status = json.load(fname)
+            if status['trainingState'] == 'Active':
+                pass
+            else:
+                running = False
+                print('Training complete...')
+    print('All Concepts trained')
+
 # Main test function for
 # 1. running custom assessment using bonsai-cli
 # 2. retrieving data from Log Analytics Workspace using LogAnalyticsDataClient
 # 3. flattening states, actions, and configs
 # 4. making plots for episode metrics
 # 5. qualifying pass/fail
-def test_assessment_brain(brain_name, brain_version, concept_name, file_name, sim_package_name, instance_count, custom_assess_name, log_analy_workspace):
-    # run custom assessment
+def test_assessment_brain(brain_name, brain_version, concept_name, file_name, simulator_package_name, instance_count, custom_assess_name, log_analy_workspace):
+    # Run custom assessment
     os.system('bonsai brain version assessment start --brain-name {} --brain-version {} --concept-name {} --file {} --simulator-package-name {} --instance-count {} --name {}'.format(
         brain_name,
         brain_version,
         concept_name,
         file_name,
-        sim_package_name,
+        simulator_package_name,
         instance_count,
         custom_assess_name,
         custom_assess_name
@@ -239,6 +294,7 @@ def format_kql_logs(df: pd.DataFrame) -> pd.DataFrame:
     return formated_df.sort_values(by=["EpisodeId", "IterationIndex"])
 
 if __name__ == '__main__':
+    test_model_import('My ML Model 3', './Machine-Teaching-Examples/model_import/state_tranform_deep.zip')
     test_assessment_brain(
         'bricimport',
         4,
