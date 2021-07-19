@@ -107,6 +107,7 @@ def test_train_brain(brain_name, brain_version, inkling_fname, simulator_package
         # Do not continue until training is complete
         running = True
         while running:
+            time.sleep(60)
             os.system('bonsai brain version show --name {} --version {} -o json > status.json'.format(
                 brain_name,
                 brain_version,
@@ -143,6 +144,7 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
     # Do not continue until assessment is complete and waited 5 minutes
     running = True
     while running:
+        time.sleep(60)
         os.system('bonsai brain version assessment show --brain-name {} --brain-version {} --name {} -o json > status.json'.format(
             brain_name,
             brain_version,
