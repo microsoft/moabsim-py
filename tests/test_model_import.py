@@ -117,6 +117,7 @@ def test_train_brain(brain_name, brain_version, inkling_fname, simulator_package
                 pass
             else:
                 running = False
+                time.sleep(60)
                 print('Training complete...')
     print('All Concepts trained')
 
