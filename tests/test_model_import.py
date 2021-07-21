@@ -77,7 +77,6 @@ def import_name(pytestconfig):
 def model_file_path(pytestconfig):
     return pytestconfig.getoption("model_file_path")
 
-
 # Use CLI to import a ML model as .onnx or tf
 def test_model_import(import_name, model_file_path):
     os.system('bonsai importedmodel create --name "{}" --modelfilepath {}'.format(
@@ -152,7 +151,7 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
     # Do not continue until assessment is complete and waited 5 minutes
     running = True
     while running:
-        time.sleep(60)
+        time.sleep(10)
         os.system('bonsai brain version assessment show --brain-name {} --brain-version {} --name {} -o json > status.json'.format(
             brain_name,
             brain_version,
@@ -166,12 +165,12 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
             for i in range(5):
                 print('{} min...'.format(5-i))
                 time.sleep(60)
-
+    
     # Extract telescope from LAW using workspace ID and return flattened
     df = extract_telescope(log_analy_workspace, brain_name, brain_version, custom_assess_name)
-
+    
     # Make plots
-    #  EpisodeIndex based on unique EpisodeIds
+    # EpisodeIndex based on unique EpisodeIds
     df['EpisodeIndex'] = np.zeros(len(df))
     k = 1
     for i in list(set(df['EpisodeId'])):
@@ -179,7 +178,7 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
             if df['EpisodeId'].iloc[j] == i:
                 df.at[j,'EpisodeIndex'] = k
         k += 1
-    
+
     # manipulate
     df['distance_to_center'] = np.sqrt(df['ball_x'] ** 2 + df['ball_y'] ** 2)
     df['velocity_magnitude'] = np.sqrt(df['ball_vel_x'] ** 2 + df['ball_vel_y'] ** 2)
@@ -188,14 +187,14 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
     df_last = pd.DataFrame({})
     mse_dist_list = []
     mse_vel_list = []
-    for ep in range(1, int(df['EpisodeIndex'].max()+1)):
+    for ep in range(1, int(df['EpisodeIndex'].max())+1):
         last_iter = df[(df['EpisodeIndex']==ep) & (df['IterationIndex']==len(df[df['EpisodeIndex']==ep]))]
         
         mse_dist_list.append(np.square(np.subtract(0, df[(df['EpisodeIndex']==ep)]['distance_to_center'])).mean())
         mse_vel_list.append(np.square(np.subtract(0, df[(df['EpisodeIndex']==ep)]['velocity_magnitude'])).mean())
         
         df_last = pd.concat([df_last, last_iter], sort=False)
-
+    
     df_last['mse_dist'] = mse_dist_list
     df_last['mse_vel'] = mse_vel_list
 
@@ -237,10 +236,10 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
     
     # Assert tests for qualification
     assert df_summary['percentage_full_episodes'] >= 90
-    assert df_summary['avg_final_distance_to_center'] <= 0.01
-    assert df_summary['avg_final_velocity_magnitude'] <= 0.008
-    assert df_summary['mse_dist_total'] <= 0.001
-    assert df_summary['mse_vel_total'] <= 0.001
+    assert df_summary['avg_final_distance_to_center'] <= 0.02
+    assert df_summary['avg_final_velocity_magnitude'] <= 0.012
+    assert df_summary['mse_dist_total'] <= 0.004
+    assert df_summary['mse_vel_total'] <= 0.004
 
 # Extract telescope data using query
 @pytest.mark.skip(reason="helper")
@@ -303,16 +302,3 @@ def format_kql_logs(df: pd.DataFrame) -> pd.DataFrame:
 
     formated_df = formated_df[ordered_columns]
     return formated_df.sort_values(by=["EpisodeId", "IterationIndex"])
-
-if __name__ == '__main__':
-    test_model_import('My ML Model 3', './Machine-Teaching-Examples/model_import/state_tranform_deep.zip')
-    test_assessment_brain(
-        'bricimport',
-        4,
-        'MoveToCenter',
-        'assess_config.json',
-        'Moab',
-        30,
-        'custom_assessment_1',
-        'XXXXXXXX-XXX-XXXX-XXXX-XXXXXX'
-    )
