@@ -235,7 +235,7 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
     #plt.show()
     
     # Assert tests for qualification
-    assert df_summary['percentage_full_episodes'] >= 90
+    assert df_summary['percentage_full_episodes'] >= 50
     assert df_summary['avg_final_distance_to_center'] <= 0.02
     assert df_summary['avg_final_velocity_magnitude'] <= 0.012
     assert df_summary['mse_dist_total'] <= 0.004
