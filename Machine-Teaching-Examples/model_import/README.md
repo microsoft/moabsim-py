@@ -62,3 +62,22 @@ This sample illustrates how to import a Machine Learning [ML] model in Bonsai:
     2. Build the ML model as an imported concept named ImportedConcept: click `Build ImportedConcept` 
     3. Trained the brain: click `Train MoveToCenter` (see below for an expected brain training graph) 
         ![brain training](training-graph.png)
+
+## Pytest
+
+Run a pytest to import a model, build the concept, train moab with the model as input, use custom assessment, and assert performance from logs from your Log Analytics Workspace.
+
+```bash
+pytest tests\test_model_import.py -s \
+    --brain_name <BRAIN_NAME> \
+    --log_analy_workspace <LAW_WORKSPACE_ID> \
+    --custom_assess_name <CUSTOM_ASSESSMENT_NAME> \
+    --model_file_path "./Machine-Teaching-Examples/model_import/state_transform_deep.zip"
+
+    or 
+    --model_file_path "./Machine-Teaching-Examples/model_import/state_transform_deep.onnx"
+```
+
+Be sure to use your `workspace id` and not your `workspace name` in your Log Analytics Workspace within Azure Portal.
+
+![](LAW.png)
