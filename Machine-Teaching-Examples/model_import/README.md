@@ -67,8 +67,16 @@ This sample illustrates how to import a Machine Learning [ML] model in Bonsai:
 
 Run a pytest to import a model, build the concept, train moab with the model as input, use custom assessment, and assert performance from logs from your Log Analytics Workspace.
 
+### Prerequisites
+
+- Bonsai Workspace
+- Moab managed sim already in workspace (create a brain using the sample)
+- azure cli
+- docker
+- bonsai-cli
+
 ```bash
-pytest tests\test_model_import.py -s \
+pytest tests/test_model_import.py -s \
     --brain_name <BRAIN_NAME> \
     --log_analy_workspace <LAW_WORKSPACE_ID> \
     --custom_assess_name <CUSTOM_ASSESSMENT_NAME> \

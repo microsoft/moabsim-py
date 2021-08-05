@@ -16,3 +16,4 @@ dependencies:
   - pandas==1.1.2
   - azure-loganalytics==0.1.0
   - azure-mgmt-loganalytics==0.7.0
+  - pytest
