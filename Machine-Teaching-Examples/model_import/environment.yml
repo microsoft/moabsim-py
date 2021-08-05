@@ -17,3 +17,4 @@ dependencies:
   - azure-loganalytics==0.1.0
   - azure-mgmt-loganalytics==0.7.0
   - pytest
+  - azure-cli==2.10.1
