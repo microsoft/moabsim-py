@@ -83,6 +83,15 @@ def test_model_import(import_name, model_file_path):
         import_name,
         model_file_path,
     ))
+    
+    os.system('bonsai importedmodel show --name {} -o json > status.json'.format(
+        import_name,
+    ))
+    
+    # Confirm model import succeeded
+    with open('status.json') as fname:
+        status = json.load(fname)
+    assert status['status'] == 'Succeeded'
 
 # Use CLI to create, upload inkling, train, and wait til complete
 def test_train_brain(brain_name, brain_version, inkling_fname, simulator_package_name):
@@ -114,7 +123,7 @@ def test_train_brain(brain_name, brain_version, inkling_fname, simulator_package
         # Do not continue until training is complete
         running = True
         while running:
-            time.sleep(60)
+            time.sleep(20)
             os.system('bonsai brain version show --name {} --version {} -o json > status.json'.format(
                 brain_name,
                 brain_version,
@@ -125,8 +134,13 @@ def test_train_brain(brain_name, brain_version, inkling_fname, simulator_package
                 pass
             else:
                 running = False
-                time.sleep(60)
+                time.sleep(300)
                 print('Training complete...')
+
+        # Final check concepts are complete
+        with open('status.json') as fname:
+            status = json.load(fname)
+        assert status['status'] == 'Succeeded'
     print('All Concepts trained')
 
 # Main test function for
