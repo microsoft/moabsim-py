@@ -4,7 +4,7 @@ retrieval from LogAnalyticsDataClient. Usage:
 
 Train a brain using model import's instructions, then run
 
-pytest tests\test_model_import.py -s \
+pytest tests/test_model_import.py -s \
     --brain_name <BRAIN_NAME> \
     --log_analy_workspace <LAW_WORKSPACE_ID> \
     --custom_assess_name <CUSTOM_ASSESSMENT_NAME> \
@@ -31,7 +31,7 @@ import matplotlib.pyplot as plt
 import time
 import pdb
 
-# Allowing optional flags to replace defaults for pytest from tests\conftest.py
+# Allowing optional flags to replace defaults for pytest from tests/conftest.py
 @pytest.fixture()
 def brain_name(pytestconfig):
     return pytestconfig.getoption("brain_name")
@@ -84,13 +84,14 @@ def test_model_import(import_name, model_file_path):
         model_file_path,
     ))
     
-    os.system('bonsai importedmodel show --name {} -o json > status.json'.format(
+    os.system('bonsai importedmodel show --name "{}" -o json > status.json'.format(
         import_name,
     ))
-    
+
     # Confirm model import succeeded
     with open('status.json') as fname:
         status = json.load(fname)
+
     assert status['status'] == 'Succeeded'
 
 # Use CLI to create, upload inkling, train, and wait til complete
