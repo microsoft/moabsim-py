@@ -1,0 +1,8 @@
+{
+    "version": "1.0.0",
+    "recipe": {},
+    "episodeConfigurations": [
+        {"ball_radius":0.02393318507670268,"initial_roll":-0.1288264770626709,"initial_vel_x":0.16900261387316273,"initial_vel_y":-0.3955991776782724,"initial_x":-0.01210678534894888,"initial_y":0.010198122189413392,"ball_shell":0.00017861655911910286,"initial_pitch":0.05904998014430585},
+        {"initial_roll":0.10873720049858092,"initial_vel_x":0.35032984614372253,"initial_vel_y":0.17395760118961334,"initial_x":-0.05847322940826416,"initial_y":0.0018174889264628291,"ball_shell":0.0001879152114270255,"initial_pitch":-0.02228832058608532,"ball_radius":0.018350353464484215}
+    ]
+}

@@ -11,7 +11,7 @@
 
 # Use the bonsai-cli to import the model to Bonsai:
 
-# bonsai imported model create
+# bonsai importedmodel create
 #   --name <ml-model-name>
 #   --modelfilepath <model>
 #   --description "state transform NN"
