@@ -92,7 +92,7 @@ graph (input: ObservableState) {
                     [State.ball_x, State.ball_y] in Goal.Sphere([0, 0], CloseEnough)
             }
 
-			training {
+            training {
                 # Limit episodes to 250 iterations instead of the default 1000.
                 EpisodeIterationLimit: 250
             }
