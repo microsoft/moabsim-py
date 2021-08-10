@@ -92,7 +92,7 @@ def test_model_import(import_name, model_file_path):
     with open('status.json') as fname:
         status = json.load(fname)
 
-    assert status['status'] == 'Succeeded'
+    assert status['Status'] == 'Succeeded'
 
 # Use CLI to create, upload inkling, train, and wait til complete
 def test_train_brain(brain_name, brain_version, inkling_fname, simulator_package_name):
