@@ -29,7 +29,6 @@ import ast
 import json
 import matplotlib.pyplot as plt
 import time
-import pdb
 
 # Allowing optional flags to replace defaults for pytest from tests/conftest.py
 @pytest.fixture()
@@ -76,6 +75,10 @@ def import_name(pytestconfig):
 @pytest.fixture()
 def model_file_path(pytestconfig):
     return pytestconfig.getoption("model_file_path")
+
+@pytest.fixture()
+def episode_iteration_limit(pytestconfig):
+    return pytestconfig.getoption("episode_iteration_limit")
 
 # Use CLI to import a ML model as .onnx or tf
 def test_model_import(import_name, model_file_path):
@@ -150,9 +153,9 @@ def test_train_brain(brain_name, brain_version, inkling_fname, simulator_package
 # 3. flattening states, actions, and configs
 # 4. making plots for episode metrics
 # 5. qualifying pass/fail
-def test_assessment_brain(brain_name, brain_version, concept_name, file_name, simulator_package_name, instance_count, custom_assess_name, log_analy_workspace):
+def test_assessment_brain(brain_name, brain_version, concept_name, file_name, simulator_package_name, instance_count, custom_assess_name, log_analy_workspace, episode_iteration_limit):
     # Run custom assessment
-    os.system('bonsai brain version assessment start --brain-name {} --brain-version {} --concept-name {} --file {} --simulator-package-name {} --instance-count {} --name {}'.format(
+    os.system('bonsai brain version assessment start --brain-name {} --brain-version {} --concept-name {} --file {} --simulator-package-name {} --instance-count {} --name {}  --episode-iteration-limit {}'.format(
         brain_name,
         brain_version,
         concept_name,
@@ -160,7 +163,7 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
         simulator_package_name,
         instance_count,
         custom_assess_name,
-        custom_assess_name
+        episode_iteration_limit,
     ))
 
     # Do not continue until assessment is complete and waited 5 minutes
@@ -184,6 +187,8 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
     # Extract telescope from LAW using workspace ID and return flattened
     df = extract_telescope(log_analy_workspace, brain_name, brain_version, custom_assess_name)
     
+    df = df.reset_index(drop=True)
+
     # Make plots
     # EpisodeIndex based on unique EpisodeIds
     df['EpisodeIndex'] = np.zeros(len(df))
@@ -194,7 +199,7 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
                 df.at[j,'EpisodeIndex'] = k
         k += 1
 
-    # manipulate
+    # Manipulate
     df['distance_to_center'] = np.sqrt(df['ball_x'] ** 2 + df['ball_y'] ** 2)
     df['velocity_magnitude'] = np.sqrt(df['ball_vel_x'] ** 2 + df['ball_vel_y'] ** 2)
 
@@ -204,6 +209,7 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
     mse_vel_list = []
     for ep in range(1, int(df['EpisodeIndex'].max())+1):
         last_iter = df[(df['EpisodeIndex']==ep) & (df['IterationIndex']==len(df[df['EpisodeIndex']==ep]))]
+        print(last_iter.head())
         
         mse_dist_list.append(np.square(np.subtract(0, df[(df['EpisodeIndex']==ep)]['distance_to_center'])).mean())
         mse_vel_list.append(np.square(np.subtract(0, df[(df['EpisodeIndex']==ep)]['velocity_magnitude'])).mean())
@@ -227,7 +233,7 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
 
     # Plot Final Values
     fig, ax = plt.subplots(1, 1, figsize=(16, 8))
-    episodes = range(1, int(df['EpisodeIndex'].max()+1))
+    episodes = [i for i in range(1, int(df['EpisodeIndex'].max()+1))]
     ax.plot(episodes, df_last['distance_to_center']) 
     ax.plot(episodes, df_last['velocity_magnitude']) 
     ax.legend(['Final Distance to Center', 'Final Velocity Mag'])
@@ -251,10 +257,10 @@ def test_assessment_brain(brain_name, brain_version, concept_name, file_name, si
     
     # Assert tests for qualification
     assert df_summary['percentage_full_episodes'] >= 50
-    assert df_summary['avg_final_distance_to_center'] <= 0.02
-    assert df_summary['avg_final_velocity_magnitude'] <= 0.012
-    assert df_summary['mse_dist_total'] <= 0.004
-    assert df_summary['mse_vel_total'] <= 0.004
+    assert df_summary['avg_final_distance_to_center'] <= 0.1
+    assert df_summary['avg_final_velocity_magnitude'] <= 0.05
+    assert df_summary['mse_dist_total'] <= 0.008
+    assert df_summary['mse_vel_total'] <= 0.008
 
 # Extract telescope data using query
 @pytest.mark.skip(reason="helper")

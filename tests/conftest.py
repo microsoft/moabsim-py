@@ -11,3 +11,4 @@ def pytest_addoption(parser):
     parser.addoption("--inkling_fname", action="store", default="./Machine-Teaching-Examples/model_import/moab-imported-concept.ink")
     parser.addoption("--import_name", action="store", default="My ML Model")
     parser.addoption("--model_file_path", action="store", default="./Machine-Teaching-Examples/model_import/state_transform_deep.zip")
+    parser.addoption("--episode_iteration_limit", action="store", default=250)
