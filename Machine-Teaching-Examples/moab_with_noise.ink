@@ -129,9 +129,9 @@ graph (input: ObservableState) {
                     
                     initial_pitch: number<-0.2 .. 0.2>,
                     initial_roll: number<-0.2 .. 0.2>,
-
-                    ball_noise: 0.010,
-                    plate_noise: 0.017,
+                    
+                    ball_noise: 0.010, # ~10 mm max
+                    plate_noise: 0.017, # ~1 degree max
                 }
             }
         }
