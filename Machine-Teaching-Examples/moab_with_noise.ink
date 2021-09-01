@@ -41,13 +41,17 @@ type SimState {
     ball_vel_x: number<-MaxVelocity .. MaxVelocity>,
     ball_vel_y: number<-MaxVelocity .. MaxVelocity>,
     
-    # Ball X,Y position
+    # Estimated Ball X,Y position
     estimated_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
     estimated_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
 
-    # Ball X,Y velocity
+    # Estimated Ball X,Y velocity
     estimated_vel_x: number<-MaxVelocity .. MaxVelocity>,
     estimated_vel_y: number<-MaxVelocity .. MaxVelocity>,
+
+    # Actual Plate Angles
+    plate_theta_x: number,
+    plate_theta_y: number,
 }
 
 # State to send to the brain with simulated noise
