@@ -48,10 +48,6 @@ type SimState {
     # Estimated Ball X,Y velocity
     estimated_vel_x: number<-MaxVelocity .. MaxVelocity>,
     estimated_vel_y: number<-MaxVelocity .. MaxVelocity>,
-
-    # Actual Plate Angles
-    plate_theta_x: number,
-    plate_theta_y: number,
 }
 
 # State to send to the brain with simulated noise
@@ -90,9 +86,8 @@ type SimConfig {
     initial_pitch: number<-1 .. 1>,
     initial_roll: number<-1 .. 1>,
 
-    # Add sensor noise to the states and actuator noise to the actual plate angles
+    # Add sensor noise to the states
     ball_noise: number,
-    plate_noise: number,
 }
 
 # Define a concept graph with a single concept
@@ -135,7 +130,6 @@ graph (input: ObservableState) {
                     initial_roll: number<-0.2 .. 0.2>,
                     
                     ball_noise: 0.010, # ~10 mm max
-                    plate_noise: 0.017, # ~1 degree max
                 }
             }
         }
