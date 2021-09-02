@@ -41,24 +41,20 @@ type SimState {
     ball_vel_x: number<-MaxVelocity .. MaxVelocity>,
     ball_vel_y: number<-MaxVelocity .. MaxVelocity>,
     
-    # Estimated Ball X,Y position
-    estimated_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
-    estimated_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
-
-    # Estimated Ball X,Y velocity
-    estimated_vel_x: number<-MaxVelocity .. MaxVelocity>,
-    estimated_vel_y: number<-MaxVelocity .. MaxVelocity>,
+    # Actual plate theta X, Y
+    plate_theta_x: number,
+    plate_theta_y: number
 }
 
 # State to send to the brain with simulated noise
 type ObservableState {
     # Ball X,Y position
-    estimated_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
-    estimated_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+    ball_x: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
+    ball_y: number<-MaxDistancePerStep - RadiusOfPlate .. RadiusOfPlate + MaxDistancePerStep>,
 
     # Ball X,Y velocity
-    estimated_vel_x: number<-MaxVelocity .. MaxVelocity>,
-    estimated_vel_y: number<-MaxVelocity .. MaxVelocity>,
+    ball_vel_x: number<-MaxVelocity .. MaxVelocity>,
+    ball_vel_y: number<-MaxVelocity .. MaxVelocity>,
 }
 
 # Action provided as output by policy and sent as
