@@ -81,7 +81,7 @@ type SimConfig {
 
 # Define a concept graph with a single concept
 graph (input: ObservableState) {
-    concept MoveToTargetLoc(input): SimAction {
+    concept MoveToCenter(input): SimAction {
         curriculum {
             # The source of training for this concept is a simulator that
             #  - can be configured for each episode using fields defined in SimConfig,
