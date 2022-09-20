@@ -1,8 +1,9 @@
 """
-Simulator for the Moab plate+ball balancing device.
+Gym Wrapper for the Moab plate+ball balancing device.
+Edition on top of moab_model.py
 """
-__author__ = "Mike Estee"
-__copyright__ = "Copyright 2021, Microsoft Corp."
+__author__ = "Hossein Kahdivi Heris "
+__copyright__ = "Copyright 2022, Microsoft Corp."
 
 # We need to disable a check because the typeshed stubs for jinja are incomplete.
 # pyright: strict, reportUnknownMemberType=false
