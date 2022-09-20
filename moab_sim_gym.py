@@ -2,7 +2,7 @@
 Gym Wrapper for the Moab plate+ball balancing device.
 Edition on top of moab_model.py
 """
-__author__ = "Hossein Kahdivi Heris "
+__author__ = "Hossein Kahdivi Heris"
 __copyright__ = "Copyright 2022, Microsoft Corp."
 
 # We need to disable a check because the typeshed stubs for jinja are incomplete.
